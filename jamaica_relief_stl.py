@@ -64,6 +64,9 @@ def load_and_normalize(tif_path, resolution):
     # Clamp anything below 0 to 0 (sea = flat base)
     data = np.clip(data, 0, None)
 
+    # Flip north/south — GeoTIFF row 0 is north, but mesh builds top-to-bottom
+    data = np.flipud(data)
+
     # Normalize: highest point → RELIEF_DEPTH_MM, sea level → 0
     max_elev = data.max()
     if max_elev > 0:
