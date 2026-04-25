@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Jamaica Relief Map · STL Generator</title>
+  <title>Hometrix STL Generator · TIF to STL</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -234,6 +234,40 @@
       white-space: nowrap;
     }
 
+    /* Unit toggle */
+    .unit-toggle {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      overflow: hidden;
+      width: fit-content;
+    }
+
+    .unit-toggle button {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.4);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 0.45rem 1rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .unit-toggle button.active {
+      background: var(--earth);
+      color: var(--peak);
+    }
+
+    .unit-toggle button:not(.active):hover {
+      color: rgba(255,255,255,0.8);
+    }
+
     /* Generate button */
     .btn-generate {
       width: 100%;
@@ -326,14 +360,165 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
+
+    /* ── Hometrix Nav ── */
+    .topnav {
+      width: 100%;
+      background-color: #000;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 0 1rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .topnav a.logo {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px 8px 0;
+      margin-right: 8px;
+    }
+
+    .topnav a.logo img { height: 48px; display: block; }
+
+    .topnav a {
+      color: #ccc;
+      text-decoration: none;
+      padding: 14px 12px;
+      font-size: 14px;
+      display: block;
+      transition: background 0.2s, color 0.2s;
+      font-family: Arial, sans-serif;
+    }
+
+    .topnav a:hover { background-color: #333; color: #fff; }
+
+    .topnav a.icon {
+      display: none;
+      font-size: 18px;
+      padding: 14px 16px;
+      margin-left: auto;
+    }
+
+    .nav-links { display: flex; align-items: center; }
+
+    .dropdown { position: relative; display: inline-block; }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #1a1a1a;
+      min-width: 220px;
+      z-index: 100;
+      border-top: 2px solid #555;
+    }
+
+    .dropdown-content a {
+      padding: 10px 16px;
+      font-size: 13px;
+      color: #bbb;
+      white-space: nowrap;
+    }
+
+    .dropdown-content a:hover { background-color: #333; color: #fff; }
+
+    .dropdown-content .section-label {
+      padding: 8px 16px 4px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #666;
+      pointer-events: none;
+      display: block;
+      font-family: Arial, sans-serif;
+    }
+
+    .dropdown:hover .dropdown-content { display: block; }
+
+    @media (max-width: 700px) {
+      .topnav a.icon { display: block; }
+      .nav-links { display: none; width: 100%; flex-direction: column; }
+      .nav-links.open { display: flex; }
+      .dropdown { width: 100%; }
+      .dropdown-content { position: static; border-top: none; }
+    }
+
   </style>
 </head>
 <body>
 
+  <!-- ── Hometrix Nav ── -->
+  <nav class="topnav">
+    <a href="https://hometrix.com/index.html" class="logo">
+      <img src="https://hometrix.com/logo-blkbg.gif" alt="HomeTrix" />
+    </a>
+    <a href="javascript:void(0);" class="icon" onclick="document.getElementById('navLinks').classList.toggle('open')">☰</a>
+    <div class="nav-links" id="navLinks">
+      <a href="https://hometrix.com/index.html">Home</a>
+      <div class="dropdown">
+        <a href="#">Technology</a>
+        <div class="dropdown-content">
+          <span class="section-label">Television</span>
+          <a href="https://hometrix.com/cordcutting.html">Cutting the Cable Cord</a>
+          <a href="https://hometrix.com/streamingsites.html">Free Movies and TV Online</a>
+          <a href="https://hometrix.com/hdantennas.html">HD Antennas - Free HDTV</a>
+          <a href="https://hometrix.com/ota-dvr.html">OTA DVRs</a>
+          <a href="https://hometrix.com/colorcodes.html">HTML Tools/Color codes</a>
+          <span class="section-label">Computer &amp; Networks</span>
+          <a href="https://hometrix.com/cat5.html">Make Ethernet Cable</a>
+          <a href="https://hometrix.com/irnetwork.html">Build InfraRed Network</a>
+          <a href="https://hometrix.com/extendwifi.html">Extend Wifi Range</a>
+          <a href="https://hometrix.com/hostfile.html">Hosts File</a>
+          <a href="https://hometrix.com/wol.html">Wakeup Computer Remotely</a>
+          <a href="https://hometrix.com/chrome-readinglist.html">Download Chrome's Reading List</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <a href="#">Household</a>
+        <div class="dropdown-content">
+          <a href="https://hometrix.com/bulbcomparisons.html">LED Bulb Comparison</a>
+          <a href="https://hometrix.com/lightswitch.html">Replacing a Light Switch</a>
+          <a href="https://hometrix.com/wiring-fan.html">Wiring - Ceiling Fan</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <a href="#">Pets</a>
+        <div class="dropdown-content">
+          <a href="https://hometrix.com/pets-housetraining.html">House Training your Dog</a>
+          <a href="https://hometrix.com/petdoors.html">Automated Pet Doors</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <a href="#">Gardening</a>
+        <div class="dropdown-content">
+          <a href="https://hometrix.com/miracleberries.html">Growing Miracleberries</a>
+          <a href="https://hometrix.com/fertilizers.html">Home Made Fertilizers</a>
+          <a href="https://hometrix.com/wormcastings.html">Home Made Worm Casting</a>
+          <a href="https://hometrix.com/wateringbulbs.html">Watering Globes</a>
+          <a href="https://hometrix.com/watersources.html">Best Watering Sources</a>
+          <a href="https://hometrix.com/urbangardening.html">Urban Gardening: Grow Your Own Food</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <a href="#">Money</a>
+        <div class="dropdown-content">
+          <a href="https://hometrix.com/iravs401k.html">IRAs vs 401k in Retirement</a>
+          <a href="https://hometrix.com/portfolio-basic.html">How to build a Stock Portfolio Tracker</a>
+          <a href="https://hometrix.com/taxreformbill.html">2017 Tax Reform Summarized</a>
+          <a href="https://hometrix.com/buildwealth.html">Build Wealth Simply and Consistently</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Page header ── -->
   <header>
-    <p class="eyebrow">Hometrix · CNC Tools</p>
-    <h1>Jamaica<br/><span>Relief Map</span></h1>
-    <p class="subtitle">Upload a GeoTIFF elevation file and configure your CNC parameters to generate a print-ready STL.</p>
+    <p class="eyebrow">CNC Tools</p>
+    <h1>STL<br/><span>Generator</span></h1>
+    <p class="subtitle">Upload any GeoTIFF (.tif / .tiff) elevation file, configure your CNC parameters, and download a print-ready STL.</p>
   </header>
 
   <!-- Upload -->
@@ -351,6 +536,10 @@
   <!-- Parameters -->
   <div class="card">
     <p class="card-title">02 — CNC Parameters</p>
+    <div class="unit-toggle">
+      <button id="btnMm" class="active" onclick="setUnit('mm')">mm</button>
+      <button id="btnIn" onclick="setUnit('in')">inches</button>
+    </div>
     <div class="params-grid">
 
       <div class="param-group">
@@ -358,7 +547,7 @@
         <p class="param-desc">Physical width of the carved piece</p>
         <div class="input-row">
           <input type="number" id="widthMm" value="250" min="50" max="1000" step="5" />
-          <span class="unit">mm</span>
+          <span class="unit unit-label">mm</span>
         </div>
       </div>
 
@@ -367,7 +556,7 @@
         <p class="param-desc">Max height of terrain above base</p>
         <div class="input-row">
           <input type="number" id="reliefDepthMm" value="15" min="2" max="50" step="1" />
-          <span class="unit">mm</span>
+          <span class="unit unit-label">mm</span>
         </div>
       </div>
 
@@ -376,7 +565,7 @@
         <p class="param-desc">Solid base below terrain</p>
         <div class="input-row">
           <input type="number" id="baseThickMm" value="6" min="2" max="30" step="1" />
-          <span class="unit">mm</span>
+          <span class="unit unit-label">mm</span>
         </div>
       </div>
 
@@ -405,7 +594,7 @@
 
   <div class="error-msg" id="errorMsg"></div>
 
-  <footer>Hometrix &copy; 2025 &nbsp;·&nbsp; Jamaica Relief STL Generator</footer>
+  <footer>Hometrix STL Generator &copy; 2025</footer>
 
   <script>
     const fileInput    = document.getElementById('tifFile');
@@ -418,12 +607,49 @@
     const statusMsg    = document.getElementById('statusMsg');
     const errorMsg     = document.getElementById('errorMsg');
 
+    // ── Unit system ─────────────────────────────────────────────
+    let currentUnit = 'mm';
+    const IN_TO_MM  = 25.4;
+
+    // Default values in mm
+    const defaults = {
+      mm: { width: 250,  relief: 15,   base: 6  },
+      in: { width: 9.84, relief: 0.59, base: 0.24 }
+    };
+
+    function setUnit(unit) {
+      if (unit === currentUnit) return;
+      currentUnit = unit;
+
+      // Toggle button styles
+      document.getElementById('btnMm').classList.toggle('active', unit === 'mm');
+      document.getElementById('btnIn').classList.toggle('active', unit === 'in');
+
+      // Convert current values
+      const factor = unit === 'in' ? (1 / IN_TO_MM) : IN_TO_MM;
+      const step   = unit === 'in' ? 0.01 : 1;
+      const fields = ['widthMm', 'reliefDepthMm', 'baseThickMm'];
+
+      fields.forEach(id => {
+        const input = document.getElementById(id);
+        input.value = parseFloat((parseFloat(input.value) * factor).toFixed(2));
+        input.step  = step;
+      });
+
+      // Update unit labels
+      document.querySelectorAll('.unit-label').forEach(el => {
+        el.textContent = unit === 'in' ? 'in' : 'mm';
+      });
+    }
+
     // ── File selection ──────────────────────────────────────────
     fileInput.addEventListener('change', () => {
       if (fileInput.files.length > 0) {
         fileName.textContent = fileInput.files[0].name;
         fileSelected.style.display = 'block';
         generateBtn.disabled = false;
+        // Store base name for download
+        window._uploadedName = fileInput.files[0].name.replace(/\.tiff?$/i, '.stl');
       }
     });
 
@@ -452,11 +678,14 @@
       status.classList.add('visible');
       setProgress(10, 'Uploading file...');
 
+      // Always send mm to the backend
+      const toMm = v => currentUnit === 'in' ? parseFloat(v) * IN_TO_MM : parseFloat(v);
+
       const formData = new FormData();
       formData.append('tif_file',        fileInput.files[0]);
-      formData.append('width_mm',        document.getElementById('widthMm').value);
-      formData.append('relief_depth_mm', document.getElementById('reliefDepthMm').value);
-      formData.append('base_thick_mm',   document.getElementById('baseThickMm').value);
+      formData.append('width_mm',        toMm(document.getElementById('widthMm').value));
+      formData.append('relief_depth_mm', toMm(document.getElementById('reliefDepthMm').value));
+      formData.append('base_thick_mm',   toMm(document.getElementById('baseThickMm').value));
       formData.append('resolution',      document.getElementById('resolution').value);
 
       try {
@@ -480,7 +709,7 @@
         const url  = URL.createObjectURL(blob);
         const a    = document.createElement('a');
         a.href     = url;
-        a.download = 'jamaica_relief.stl';
+        a.download = window._uploadedName || 'output.stl';
         a.click();
         URL.revokeObjectURL(url);
 
