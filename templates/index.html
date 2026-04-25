@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jamaica Relief Map · STL Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sand:    #e8dcc8;
+      --earth:   #b5865a;
+      --forest:  #2d4a2d;
+      --peak:    #1a2e1a;
+      --sea:     #1b3a52;
+      --foam:    #a8c5da;
+      --white:   #f5f0e8;
+      --ink:     #1a1a1a;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--peak);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 1rem 4rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Topographic background lines */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 38px,
+          rgba(255,255,255,0.03) 38px,
+          rgba(255,255,255,0.03) 39px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          transparent,
+          transparent 38px,
+          rgba(255,255,255,0.02) 38px,
+          rgba(255,255,255,0.02) 39px
+        );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      width: 100%;
+      max-width: 680px;
+      padding: 3rem 0 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--earth);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 10vw, 5.5rem);
+      line-height: 0.9;
+      color: var(--sand);
+      letter-spacing: 0.02em;
+    }
+
+    h1 span {
+      color: var(--earth);
+    }
+
+    .subtitle {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--foam);
+      font-weight: 300;
+      max-width: 420px;
+      line-height: 1.6;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 680px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 2rem;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 1.25rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .card-title {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--earth);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Upload zone */
+    .upload-zone {
+      border: 2px dashed rgba(168, 197, 218, 0.3);
+      border-radius: 8px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.drag-over {
+      border-color: var(--earth);
+      background: rgba(181, 134, 90, 0.06);
+    }
+
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .upload-label {
+      font-size: 0.95rem;
+      color: var(--foam);
+    }
+
+    .upload-label strong {
+      color: var(--earth);
+    }
+
+    .upload-hint {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.35);
+      margin-top: 0.4rem;
+    }
+
+    .file-selected {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--earth);
+      display: none;
+    }
+
+    /* Parameters grid */
+    .params-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 500px) {
+      .params-grid { grid-template-columns: 1fr; }
+    }
+
+    .param-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .param-group label {
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .param-group .param-desc {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.25);
+      line-height: 1.4;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .param-group input[type="number"] {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 0.6rem 0.75rem;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+
+    .param-group input[type="number"]::-webkit-inner-spin-button,
+    .param-group input[type="number"]::-webkit-outer-spin-button {
+      opacity: 0.3;
+    }
+
+    .param-group input[type="number"]:focus {
+      outline: none;
+      border-color: var(--earth);
+    }
+
+    .unit {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      white-space: nowrap;
+    }
+
+    /* Generate button */
+    .btn-generate {
+      width: 100%;
+      max-width: 680px;
+      padding: 1.1rem 2rem;
+      background: var(--earth);
+      color: var(--peak);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 0.1em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn-generate:hover:not(:disabled) {
+      background: var(--sand);
+    }
+
+    .btn-generate:active:not(:disabled) {
+      transform: scale(0.99);
+    }
+
+    .btn-generate:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Status */
+    .status {
+      width: 100%;
+      max-width: 680px;
+      position: relative;
+      z-index: 1;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .status.visible { display: block; }
+
+    .status-bar {
+      height: 3px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 0.6rem;
+    }
+
+    .status-bar-fill {
+      height: 100%;
+      background: var(--earth);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.4s ease;
+      animation: pulse-bar 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse-bar {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .status-msg {
+      font-size: 0.8rem;
+      color: var(--foam);
+      text-align: center;
+    }
+
+    .error-msg {
+      background: rgba(200, 60, 60, 0.15);
+      border: 1px solid rgba(200, 60, 60, 0.3);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      font-size: 0.85rem;
+      color: #f08080;
+      display: none;
+    }
+
+    .error-msg.visible { display: block; }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 3rem;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <p class="eyebrow">Hometrix · CNC Tools</p>
+    <h1>Jamaica<br/><span>Relief Map</span></h1>
+    <p class="subtitle">Upload a GeoTIFF elevation file and configure your CNC parameters to generate a print-ready STL.</p>
+  </header>
+
+  <!-- Upload -->
+  <div class="card">
+    <p class="card-title">01 — Elevation File</p>
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="tifFile" accept=".tif,.tiff" />
+      <span class="upload-icon">🗺️</span>
+      <p class="upload-label"><strong>Click to upload</strong> or drag & drop</p>
+      <p class="upload-hint">GeoTIFF (.tif / .tiff) — SRTM or ASTER elevation data</p>
+    </div>
+    <p class="file-selected" id="fileSelected">✓ <span id="fileName"></span></p>
+  </div>
+
+  <!-- Parameters -->
+  <div class="card">
+    <p class="card-title">02 — CNC Parameters</p>
+    <div class="params-grid">
+
+      <div class="param-group">
+        <label>Width</label>
+        <p class="param-desc">Physical width of the carved piece</p>
+        <div class="input-row">
+          <input type="number" id="widthMm" value="250" min="50" max="1000" step="5" />
+          <span class="unit">mm</span>
+        </div>
+      </div>
+
+      <div class="param-group">
+        <label>Relief Depth</label>
+        <p class="param-desc">Max height of terrain above base</p>
+        <div class="input-row">
+          <input type="number" id="reliefDepthMm" value="15" min="2" max="50" step="1" />
+          <span class="unit">mm</span>
+        </div>
+      </div>
+
+      <div class="param-group">
+        <label>Base Thickness</label>
+        <p class="param-desc">Solid base below terrain</p>
+        <div class="input-row">
+          <input type="number" id="baseThickMm" value="6" min="2" max="30" step="1" />
+          <span class="unit">mm</span>
+        </div>
+      </div>
+
+      <div class="param-group">
+        <label>Resolution</label>
+        <p class="param-desc">Sample points across width (100–1000)</p>
+        <div class="input-row">
+          <input type="number" id="resolution" value="500" min="100" max="1000" step="50" />
+          <span class="unit">pts</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Generate -->
+  <button class="btn-generate" id="generateBtn" disabled>Generate STL</button>
+
+  <!-- Status -->
+  <div class="status" id="status">
+    <div class="status-bar">
+      <div class="status-bar-fill" id="statusFill"></div>
+    </div>
+    <p class="status-msg" id="statusMsg">Uploading file...</p>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <footer>Hometrix &copy; 2025 &nbsp;·&nbsp; Jamaica Relief STL Generator</footer>
+
+  <script>
+    const fileInput    = document.getElementById('tifFile');
+    const uploadZone   = document.getElementById('uploadZone');
+    const fileSelected = document.getElementById('fileSelected');
+    const fileName     = document.getElementById('fileName');
+    const generateBtn  = document.getElementById('generateBtn');
+    const status       = document.getElementById('status');
+    const statusFill   = document.getElementById('statusFill');
+    const statusMsg    = document.getElementById('statusMsg');
+    const errorMsg     = document.getElementById('errorMsg');
+
+    // ── File selection ──────────────────────────────────────────
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        fileName.textContent = fileInput.files[0].name;
+        fileSelected.style.display = 'block';
+        generateBtn.disabled = false;
+      }
+    });
+
+    uploadZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      uploadZone.classList.add('drag-over');
+    });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadZone.classList.remove('drag-over');
+      if (e.dataTransfer.files.length > 0) {
+        fileInput.files = e.dataTransfer.files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+
+    // ── Generate ────────────────────────────────────────────────
+    generateBtn.addEventListener('click', async () => {
+      errorMsg.classList.remove('visible');
+      errorMsg.textContent = '';
+
+      if (!fileInput.files.length) return;
+
+      generateBtn.disabled = true;
+      status.classList.add('visible');
+      setProgress(10, 'Uploading file...');
+
+      const formData = new FormData();
+      formData.append('tif_file',        fileInput.files[0]);
+      formData.append('width_mm',        document.getElementById('widthMm').value);
+      formData.append('relief_depth_mm', document.getElementById('reliefDepthMm').value);
+      formData.append('base_thick_mm',   document.getElementById('baseThickMm').value);
+      formData.append('resolution',      document.getElementById('resolution').value);
+
+      try {
+        setProgress(30, 'Processing elevation data...');
+
+        const response = await fetch('/generate', {
+          method: 'POST',
+          body: formData,
+        });
+
+        setProgress(80, 'Building mesh...');
+
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.error || 'Unknown server error');
+        }
+
+        setProgress(100, 'Done! Downloading...');
+
+        const blob = await response.blob();
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = 'jamaica_relief.stl';
+        a.click();
+        URL.revokeObjectURL(url);
+
+        setTimeout(() => {
+          status.classList.remove('visible');
+          generateBtn.disabled = false;
+          setProgress(0, '');
+        }, 2000);
+
+      } catch (err) {
+        status.classList.remove('visible');
+        generateBtn.disabled = false;
+        errorMsg.textContent = '⚠ Error: ' + err.message;
+        errorMsg.classList.add('visible');
+      }
+    });
+
+    function setProgress(pct, msg) {
+      statusFill.style.width = pct + '%';
+      statusMsg.textContent  = msg;
+    }
+  </script>
+</body>
+</html>
